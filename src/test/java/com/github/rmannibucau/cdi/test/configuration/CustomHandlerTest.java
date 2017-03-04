@@ -3,17 +3,15 @@ package com.github.rmannibucau.cdi.test.configuration;
 import com.github.rmannibucau.cdi.configuration.model.ConfigBean;
 import com.github.rmannibucau.cdi.configuration.xml.handlers.NamespaceHandler;
 import com.github.rmannibucau.cdi.configuration.xml.handlers.NamespaceHandlerSupport;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.xml.sax.Attributes;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(Arquillian.class)
 public class CustomHandlerTest {

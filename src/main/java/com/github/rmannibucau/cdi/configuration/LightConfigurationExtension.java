@@ -1,20 +1,12 @@
 package com.github.rmannibucau.cdi.configuration;
 
 import com.github.rmannibucau.cdi.configuration.factory.ContextualFactory;
+import static com.github.rmannibucau.cdi.configuration.loader.ClassLoaders.tccl;
 import com.github.rmannibucau.cdi.configuration.model.ConfigBean;
+import static com.github.rmannibucau.cdi.configuration.qualifier.Qualifiers.toQualifier;
 import com.github.rmannibucau.cdi.configuration.reflect.ParameterizedTypeImpl;
+import static com.github.rmannibucau.cdi.configuration.scope.Scopes.toScope;
 import com.github.rmannibucau.cdi.configuration.xml.ConfigParser;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.deltaspike.core.spi.activation.Deactivatable;
-import org.apache.deltaspike.core.util.ClassDeactivationUtils;
-import org.apache.deltaspike.core.util.bean.BeanBuilder;
-
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.BeforeBeanDiscovery;
-import javax.enterprise.inject.spi.Extension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -24,11 +16,18 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.github.rmannibucau.cdi.configuration.loader.ClassLoaders.tccl;
-import static com.github.rmannibucau.cdi.configuration.qualifier.Qualifiers.toQualifier;
-import static com.github.rmannibucau.cdi.configuration.scope.Scopes.toScope;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.BeforeBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.spi.activation.Deactivatable;
+import org.apache.deltaspike.core.util.ClassDeactivationUtils;
+import org.apache.deltaspike.core.util.bean.BeanBuilder;
 
 public class LightConfigurationExtension implements Extension, Deactivatable {
     private static final Logger LOGGER = Logger.getLogger(LightConfigurationExtension.class.getName());
@@ -62,7 +61,7 @@ public class LightConfigurationExtension implements Extension, Deactivatable {
             try {
                 final Bean<Object> cdiBean = createBean(bm, bean);
                 abd.addBean(cdiBean);
-                LOGGER.fine("Added bean " + cdiBean.getName());
+                LOGGER.log(Level.FINE, "Added bean {0}", cdiBean.getName());
             } catch (final Exception e) {
                 throw new ConfigurationException(e);
             }
@@ -80,7 +79,7 @@ public class LightConfigurationExtension implements Extension, Deactivatable {
                     beans.put("_no_name_" + bean.hashCode(), bean);
                 }
             }
-            LOGGER.info("Read: " + url.toExternalForm());
+            LOGGER.log(Level.INFO, "Read: {0}", url.toExternalForm());
         } finally {
             try {
                 is.close();
@@ -97,7 +96,7 @@ public class LightConfigurationExtension implements Extension, Deactivatable {
         final Type type = findType(classLoader, clazz, bean.getTypeParameters());
 
         final BeanBuilder<Object> beanBuilder = new BeanBuilder<Object>(bm)
-            .passivationCapable(true)
+            .passivationCapable(false)
             .beanClass(clazz)
             .name(name)
             .types(type, Object.class)
